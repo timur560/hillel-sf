@@ -47,6 +47,9 @@ class ShortLink
 
     public function __construct()
     {
+        $this->setCreatedAt(new \DateTime());
+        $this->setUpdatedAt(new \DateTime());
+
         $this->statistics = new ArrayCollection();
     }
 
