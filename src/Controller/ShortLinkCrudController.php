@@ -5,6 +5,7 @@ namespace App\Controller;
 
 
 use App\Entity\ShortLink;
+use App\Form\ShortLinkType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -33,26 +34,42 @@ class ShortLinkCrudController extends AbstractController
      */
     public function create(Request $request)
     {
-        $formBuilder = $this->createFormBuilder()
-            ->add('fullUrl', TextType::class)
-            ->add('shortCode', TextType::class)
-            ->add('save', SubmitType::class, ['label' => 'Create Short Link']);
-
-        $form = $formBuilder->getForm();
+        $form = $this->createForm(ShortLinkType::class, new ShortLink());
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-            $data = $form->getData();
-            $shortLink = new ShortLink();
-            $shortLink->setFullUrl($data['fullUrl']);
-            $shortLink->setShortCode($data['shortCode']);
+            $shortLink = $form->getData();
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($shortLink);
             $em->flush();
+
             return $this->redirectToRoute('short_links_list');
         }
 
         return $this->render('short-link/create.html.twig', ['form' => $form->createView()]);
+    }
+
+    /**
+     * @Route(name="short_link_edit", path="/short-link/{shortLink}/edit", methods={"GET","POST"})
+     */
+    public function edit(Request $request, ShortLink $shortLink)
+    {
+        $form = $this->createForm(ShortLinkType::class, $shortLink);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            $shortLink = $form->getData();
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($shortLink);
+            $em->flush();
+
+            return $this->redirectToRoute('short_links_list');
+        }
+
+        return $this->render('short-link/edit.html.twig', ['form' => $form->createView()]);
     }
 }
