@@ -3,12 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="users")
+ * @ORM\HasLifecycleCallbacks()
  */
 class User implements UserInterface
 {
@@ -48,6 +52,48 @@ class User implements UserInterface
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Post::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $posts;
+
+    public function __construct()
+    {
+        $this->posts = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->getName() . ' (ID#' . $this->getId() . ')';
+    }
+
+    /**
+     * @ORM\PreUpdate()
+     * @ORM\PrePersist()
+     * @throws \Exception
+     */
+    public function setUpdatedAtAsCurrent()
+    {
+        $this->setUpdatedAt(new \DateTime());
+    }
+
+    /**
+     * @ORM\PrePersist()
+     * @throws \Exception
+     */
+    public function setCreatedAtAsCurrent()
+    {
+        $this->setCreatedAt(new \DateTime());
+    }
+
+//    /**
+//     * @ORM\PrePersist()
+//     */
+//    public function encodePassword()
+//    {
+//        $this->setPassword(password_hash($this->getPassword(), PASSWORD_ARGON2ID));
+//    }
 
     public function getId(): ?int
     {
@@ -155,7 +201,7 @@ class User implements UserInterface
      */
     public function getSalt()
     {
-        return null;
+         return null;
     }
 
     /**
@@ -176,6 +222,37 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        $this->setPassword(null);
+//         $this->setPassword(null);
+    }
+
+    /**
+     * @return Collection|Post[]
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): self
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts[] = $post;
+            $post->setUser1($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): self
+    {
+        if ($this->posts->contains($post)) {
+            $this->posts->removeElement($post);
+            // set the owning side to null (unless already changed)
+            if ($post->getUser1() === $this) {
+                $post->setUser1(null);
+            }
+        }
+
+        return $this;
     }
 }
