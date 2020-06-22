@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
+use App\Service\ContentInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -11,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="posts")
  * @ORM\HasLifecycleCallbacks()
  */
-class Post
+class Post implements ContentInterface
 {
     /**
      * @ORM\Id()
