@@ -23,7 +23,28 @@ class SecurityController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+        //        Client ID
+        //597984a0e83f563d832d
+        //
+        //Client Secret
+        //00026b0739272712b7273ddf0e16bfe1c7f677c0
+        //
+        $clientId = '597984a0e83f563d832d';
+        $githubUrl = 'https://github.com/login/oauth/authorize';
+
+        $params = [
+            'client_id' => $clientId,
+            'redirect_uri' => 'http://localhost:8000/github-callback',
+            'scope' => 'read:user user:email',
+        ];
+
+        $githubUrl .= '?' . http_build_query($params);
+
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
+            'github_url' => $githubUrl,
+        ]);
     }
 
     /**

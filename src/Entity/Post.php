@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\PostRepository;
 use App\Service\ContentInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=PostRepository::class)
